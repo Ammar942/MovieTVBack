@@ -14,7 +14,7 @@ router.post("/", validate(createEntrySchema), entryController.createEntry);
 router.get(
   "/",
   validate(searchSchema, "query"),
-  entryController.getEntries
+  entryController.getEntries as any // TODO: Fix type casting
 );
 router.get("/:id", entryController.getEntryById);
 router.put("/:id", validate(updateEntrySchema), entryController.updateEntry);

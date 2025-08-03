@@ -1,10 +1,22 @@
-import { PrismaClient, Entry } from "@prisma/client";
+import { PrismaClient, Entry, EntryType } from "@prisma/client";
 import { ApiError } from "../utils/errorHandler";
 
 const prisma = new PrismaClient();
 
-type CreateEntryData = Omit<Entry, "id" | "createdAt" | "updatedAt">;
-type UpdateEntryData = Partial<Omit<Entry, "id" | "createdAt" | "updatedAt">>; // All fields optional for update
+type CreateEntryData = {
+  title: string;
+  type: EntryType;
+  director: string;
+  budget?: string | null;
+  location?: string | null;
+  duration?: string | null;
+  releaseYear: number;
+  endTime?: string | null;
+  notes?: string | null;
+  poster?: string | null;
+};
+
+type UpdateEntryData = Partial<CreateEntryData>;
 
 export const createEntry = async (data: CreateEntryData): Promise<Entry> => {
   try {
@@ -33,10 +45,10 @@ export const getEntries = async (
 ): Promise<{ entries: Entry[]; total: number }> => {
   try {
     const skip = (page - 1) * limit;
-    
+
     // Build where clause for filtering
     const where: any = {};
-    
+
     if (filters?.search) {
       where.OR = [
         { title: { contains: filters.search } },
@@ -44,19 +56,19 @@ export const getEntries = async (
         { notes: { contains: filters.search } },
       ];
     }
-    
+
     if (filters?.type) {
       where.type = filters.type;
     }
-    
+
     if (filters?.director) {
       where.director = { contains: filters.director };
     }
-    
+
     if (filters?.releaseYear) {
       where.releaseYear = filters.releaseYear;
     }
-    
+
     const [entries, total] = await prisma.$transaction([
       prisma.entry.findMany({
         where,

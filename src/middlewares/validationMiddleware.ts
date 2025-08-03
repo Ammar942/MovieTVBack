@@ -12,8 +12,8 @@ export const validate =
       schema.parse(req[target]);
       next();
     } catch (error) {
-      if (error instanceof ZodError && Array.isArray(error.errors)) {
-        const errors = error.errors.map((err) => ({
+      if (error instanceof ZodError) {
+        const errors = error.issues.map((err) => ({
           path: err.path.join("."),
           message: err.message,
         }));
